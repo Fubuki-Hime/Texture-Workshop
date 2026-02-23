@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 if ("${CMAKE_SYSTEM_NAME}" STREQUAL "iOS" OR IOS)
 	set(CMAKE_OSX_ARCHITECTURES "arm64")
@@ -11,10 +11,10 @@ set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 project(TWS VERSION 1.3.1)
 
 add_library(${PROJECT_NAME} SHARED
-    src/boobs.cpp
-    src/TextureWorkshopLayer.cpp
-    src/TexturePack.cpp
-    src/TexturePackInfo.cpp
+    src/hooks/MenuLayer.cpp
+    src/ui/TWSLayer.cpp
+    src/ui/TWSPackCell.cpp
+    src/tps/TWSPack.cpp
     # Add your cpp files here
 )
 
