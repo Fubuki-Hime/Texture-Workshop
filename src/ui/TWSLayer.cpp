@@ -4,6 +4,7 @@ using namespace geode::prelude;
 #include "headers/TWSPackCell.hpp"
 #include "../tps/headers/TWSPack.hpp"
 #include "../header/boobs.hpp"
+#include "./headers/TWSFilters.hpp"
 
 #include <cctype>
 #include <algorithm>
@@ -98,26 +99,35 @@ bool TWSLayer::init() {
     outline->setScale(1.2);
     outline->setZOrder(1);
 
-    auto pagesMenu = CCMenu::create();
+    pagesMenu = CCMenu::create();
     pagesMenu->setID("pages-menu");
     outline->addChild(pagesMenu, 1);
     pagesMenu->setPosition(0, 0);
 
     auto nextPageSpr = CCSprite::createWithSpriteFrameName("GJ_arrow_02_001.png");
-    auto nextPage = CCMenuItemSpriteExtra::create(
+    nextPageSpr->setFlipX(true);
+    nextPage = CCMenuItemSpriteExtra::create(
         nextPageSpr,
         this,
         menu_selector(TWSLayer::onNextPage)
     );
+    nextPage->setAnchorPoint({0, .5});
     pagesMenu->addChild(nextPage);
+    nextPage->setPosition(ccp(outline->getContentSize().width + 1.5, (outline->getContentHeight() / 2) - 7));
+    //nextPage->setVisible(false);
 
-    auto prevPage = CCMenuItemSpriteExtra::create(
-        nextPageSpr,
+    auto prevPageSpr = CCSprite::createWithSpriteFrameName("GJ_arrow_02_001.png");
+    prevPage = CCMenuItemSpriteExtra::create(
+        prevPageSpr,
         this,
         menu_selector(TWSLayer::onPrevPage)
     );
+    prevPage->setAnchorPoint({1, .5});
     pagesMenu->addChild(prevPage);
-    prevPage->setPositionX(100);
+    prevPage->setPosition({-3.5, (outline->getContentHeight() / 2) - 7});
+    prevPage->setVisible(false);
+    
+    pagesMenu->setContentSize(outline->getContentSize());
 
     buttonMenu = CCMenu::create();
     buttonMenu->setID("button-menu");
@@ -180,47 +190,164 @@ bool TWSLayer::init() {
     buttonMenu->addChild(filesBtn);
     filesBtn->setPosition(ccp(director->getScreenLeft() + 25, director->getScreenBottom() + 25));
 
-    getTexturePacks();
+    //getTexturePacks();
 
     scroll = ScrollLayer::create(ccp(313, 180));
     scroll->setAnchorPoint(ccp(0, 0));
     scroll->ignoreAnchorPointForPosition(false);
-    float basePosY = 143.5;
     scroll->setZOrder(-1);
     scroll->setPosition(8, 8);
 
-    /*TWSPackCell* testTp1 = TWSPackCell::create(TWSPack::create("Test TP", "https://goon.com", "https://textureworkshop.xyz/api/v1/tws/getLogo/131.png", "test tp for thing", "Roxi", "1.0.0", "2.208", false, 1680), false);
-    TWSPackCell* testTp2 = TWSPackCell::create(TWSPack::create("Test TP 2", "https://goon.com", "https://textureworkshop.xyz/api/v1/tws/getLogo/9.png", "test tp for thing", "Roxi", "1.0.0", "2.208", true, 10593), true);
-    scroll->m_contentLayer->addChild(testTp1);
-    scroll->m_contentLayer->addChild(testTp2);
-    testTp1->setPosition(0, basePosY);
-    testTp2->setPosition(0, basePosY - 35);*/
-
     outline->addChild(scroll);
+
+    loading = LoadingCircleSprite::create(1);
+    loading->setID("loading");
+    loading->setScale(0.6f);
+    loading->setPosition(ccp(outline->getContentWidth() / 2, outline->getContentHeight() / 2 + -21.875f));
+    outline->addChild(loading);
+    loading->setVisible(false);
+
+    /*pageJson = matjson::parse(R"({
+        "1": {
+            "packID": 12,
+            "packName": "featured test",
+            "downloadLink": "https://github.com/Uproxide/storage/releases/download/a/Legacy.Uproxide.Difficulties.zip",
+            "packLogo": "https://github.com/Uproxide/storage/releases/download/a/update.png",
+            "packDescription": "testing tp.\n# hello!",
+            "packCreator": "roxi",
+            "packVersion": "1.2.0",
+            "gdVersion": "2.2081",
+            "packFeature": 1,
+            "packDownloads": 105465,
+            "creationDate": 0,
+            "lastUpdated": 1755111695474
+        },
+        "2": {
+            "packID": 12,
+            "packName": "unfeatured test",
+            "downloadLink": "https://github.com/Uproxide/storage/releases/download/a/Legacy.Uproxide.Difficulties.zip",
+            "packLogo": "https://github.com/Uproxide/storage/releases/download/a/update.png",
+            "packDescription": "testing tp.\n# hello!",
+            "packCreator": "naomi",
+            "packVersion": "1.2.0",
+            "gdVersion": "2.2081",
+            "packFeature": 0,
+            "packDownloads": 105465,
+            "creationDate": 0,
+            "lastUpdated": 1755111695474
+        }
+    })").unwrap();*/
+
+    getTexturePacks(boobs::search); // web web web sahur
+
+    inp = TextInput::create(300, "Search", "bigFont.fnt");
+    inp->setContentHeight(20);
+    inp->setAnchorPoint(ccp(0, 0));
+    inp->ignoreAnchorPointForPosition(false); 
+    this->outline->addChild(inp);
+
+    inp->setPosition(ccp(6, 194.2));
+    inp->hideBG();
+    auto inputNode = inp->getInputNode();
+    inputNode->setPositionY(inputNode->getPositionY() - 5);
+    inputNode->setPositionX(5);
+    inputNode->m_textLabel->setAnchorPoint(ccp(0, 0.5));
+    inputNode->m_textLabel->setScale(0.5);
+    inp->setDelegate(this);
+    inp->setCommonFilter(CommonFilter::Any);
+
+    auto inpMenu = CCMenu::create();
+    inpMenu->setContentSize(inp->getContentSize());
+    inp->addChild(inpMenu);
+    
+    
+    auto filterSpr = CCSprite::createWithSpriteFrameName("TWS_SearchButton.png"_spr);
+    filterSpr->setScale(0.9);
+    auto filterBtn = CCMenuItemSpriteExtra::create(
+        filterSpr,
+        this,
+        menu_selector(TWSLayer::onSort)
+    );
+    inpMenu->addChild(filterBtn);
+    inpMenu->setLayout(
+        RowLayout::create()
+            ->setAxisAlignment(AxisAlignment::End)
+    );
+    inpMenu->setPosition(inp->getContentSize() / 2);
+    filterBtn->setPositionX(filterBtn->getPositionX() + 5);
+    inpMenu->setTouchPriority(-129);
 
     return true;
 }
 
-void TWSLayer::getTexturePacks() {
+void TWSLayer::getTexturePacks(std::string searchQuery) {
+    if (scroll && scroll->m_contentLayer->getChildrenCount() > 0) scroll->m_contentLayer->removeAllChildren();
+
+    if (loading) loading->setVisible(true);
+
+    if (auto errorSlop = outline->getChildByID("error-text"_spr)) {
+        outline->removeChild(errorSlop, true);
+    }
+
+    //if (nextPage && nextPage->isVisible()) nextPage->setVisible(false);
+    //if (prevPage && prevPage->isVisible()) prevPage->setVisible(false);
+    
     auto req = geode::utils::web::WebRequest();
 
     req.onProgress([](geode::utils::web::WebProgress const& progress) {
-        log::debug("Progress: ", progress.downloadProgress());
+        //log::debug("Progress: ", progress.downloadProgress());
     });
 
+    log::info("{}", boobs::page);
+
+    std::string url = fmt::format("https://textureworkshop.xyz/api/v2/tws/getTPs?page={}", boobs::page);
+
+    if (Mod::get()->getSettingValue<bool>("version-filter")) {
+        std::string currentUrlStr = url;
+        url = fmt::format("{}&version={}", currentUrlStr, Loader::get()->getGameVersion());
+    }
+
+    if (!searchQuery.empty()) {
+        std::string currentUrlStr = url;
+        size_t pos = 0;
+        while ((pos = searchQuery.find(" ", pos)) != std::string::npos) {
+            searchQuery.replace(pos, 1, "%20");
+            pos += 3;
+        }
+        url = fmt::format("{}&search={}", currentUrlStr, searchQuery);
+    }
+
+    log::info("{}", Loader::get()->getGameVersion());
+
     m_getTPslistener.spawn( 
-        req.get(fmt::format("https://textureworkshop.xyz/api/v2/tws/getTPs?page={}", boobs::page)),
-        [this](geode::utils::web::WebResponse value) {
+        req.get(url),
+        [this](geode::utils::web::WebResponse res) {
             //log::debug("Response: {}", value.code());
             //log::debug("Body: {}", value.string().unwrap());
-            if (value.string().unwrap() == "{}") {
-                log::info("theres nothing on this page, trying previous page...");
-                boobs::page -= 1;
-                getTexturePacks();
+            if (res.ok()) {
+                if (res.string().unwrap() == "{}") {
+                    auto errorText = CCLabelBMFont::create("No texture packs found!", "bigFont.fnt");
+                    outline->addChild(errorText);
+                    errorText->setScale(0.3);
+                    errorText->setID("error-text"_spr);
+                    errorText->setPosition({ outline->getContentWidth() / 2, outline->getContentHeight() / 2 });
+                    loading->setVisible(false);
+                    nextPage->setVisible(false);
+                    prevPage->setVisible(false);
+                } else {
+                    pageJson = res.json().unwrap();
+                    //log::debug("Page JSON: {}", pageJson.dump());
+                    setupTPCells();
+                }
             } else {
-                pageJson = value.json().unwrap();
-                log::debug("Page JSON: {}", pageJson.dump());
-                setupTPCells();
+                auto errorText = CCLabelBMFont::create("Something went wrong while getting TPs!\nPlease try again later.", "bigFont.fnt");
+                outline->addChild(errorText);
+                errorText->setScale(0.3);
+                errorText->setID("error-text"_spr);
+                errorText->setPosition({ outline->getContentWidth() / 2, outline->getContentHeight() / 2 });
+                loading->setVisible(false);
+                nextPage->setVisible(false);
+                prevPage->setVisible(false);
             }
         }
     );
@@ -231,6 +358,16 @@ void TWSLayer::setupTPCells() {
     scroll->m_contentLayer->setAnchorPoint(ccp(0,1));
 
     scroll->m_contentLayer->removeAllChildren();
+    loading->setVisible(false);
+
+    tps.clear();
+
+    if (boobs::page > 1) {
+        prevPage->setVisible(true);
+    } else {
+        prevPage->setVisible(false);
+    }
+    nextPage->setVisible(true);
 
     for (auto& value : pageJson) {
         auto tpObject = value;
@@ -243,6 +380,7 @@ void TWSLayer::setupTPCells() {
         }
 
         TWSPack* tp = TWSPack::create(
+            tpObject["packID"].asInt().unwrap(),
             tpObject["packName"].asString().unwrap(),
             tpObject["downloadLink"].asString().unwrap(),
             tpObject["packLogo"].asString().unwrap(),
@@ -258,14 +396,32 @@ void TWSLayer::setupTPCells() {
 
         stupid = !stupid;
 
-        auto tpCell = TWSPackCell::create(tp, stupid);
+        TWSPack* existingTp = nullptr;
+        for (auto* downloadingTp : boobs::downloading) {
+            if (downloadingTp && downloadingTp->ID == tpObject["packID"].asInt().unwrap()) {
+                existingTp = downloadingTp;
+            }
+        }
+
+        TWSPackCell* tpCell;
+
+        if (existingTp) {
+            tpCell = TWSPackCell::create(existingTp, stupid);
+        } else {
+            tpCell = TWSPackCell::create(tp, stupid);
+        }
+
         scroll->m_contentLayer->addChild(tpCell);
-        tpCell->setPosition(0, 312 - (35 * i));
-        float height = std::max<float>(scroll->getContentSize().height, 35 * scroll->m_contentLayer->getChildrenCount());
-        scroll->m_contentLayer->setContentSize(ccp(scroll->m_contentLayer->getContentSize().width, height));
+        tpCell->setPosition(0, 314 - (35 * i));
+        tpCell->pagesMenu = pagesMenu;
+        tpCell->inp = inp;
         i++;
     }
-
+    if (i < 10) {
+        nextPage->setVisible(false);
+    }
+    int tpCount = scroll->m_contentLayer->getChildrenCount();
+    scroll->m_contentLayer->setContentSize(ccp(scroll->m_contentLayer->getContentSize().width, (35 * 10)));
     scroll->moveToTop();
 }
 
@@ -294,13 +450,13 @@ void TWSLayer::onSupport(CCObject*) {
 void TWSLayer::onCredits(CCObject*) {
     FLAlertLayer::create(
         "Credits",
-        "<cg>Uproxide</c> - Main Developer\n<co>ShineUA and Alphalaneous</c> - Pull Requests :3\n<cr>TheSillyDoggo</c> - Help with Searching\n<cr>M336</c> - Serverside Code\n<cl>Brift</c> - Main Sprite Creator\n<cl>Dremsk1y</c> - Sprites\n<cp>Riley</c> - she spenda the money (hosting)",
+        "<cg>Uproxide</c> - Main Developer\n<co>ShineUA, Alphalaneous and TheSillyDoggo</c> - Pull Requests :3\n<cr>M336</c> - Serverside Code\n<cl>Brift</c> - Main Sprite Creator\n<cl>Dremsk1y</c> - Sprites\n<cp>Riley</c> - she spenda the money (hosting)",
         "Ok"
     )->show();
 }
 
 void TWSLayer::onRefresh(CCObject*) {
-    // TODO
+    // deprecated
 }
 
 void TWSLayer::onPacksFolder(CCObject*) {
@@ -309,13 +465,28 @@ void TWSLayer::onPacksFolder(CCObject*) {
 
 // prev/next page of texture packs
 void TWSLayer::onPrevPage(CCObject*) {
+    if (boobs::page == 1) {
+        return;
+    }
+
     boobs::page -= 1;
-    getTexturePacks();
+    getTexturePacks(boobs::search);
 }
 
 void TWSLayer::onNextPage(CCObject*) {
     boobs::page += 1;
-    getTexturePacks();
+    getTexturePacks(boobs::search);
+}
+
+void TWSLayer::onSort(CCObject*) {
+    auto sortPopup = TWSFilters::create();
+    sortPopup->show();
+}
+
+void TWSLayer::onSearch(CCObject*) {
+    boobs::search = inp->getString();
+    boobs::page = 1;
+    getTexturePacks(boobs::search);
 }
 
 void TWSLayer::keyBackClicked() {
@@ -323,10 +494,31 @@ void TWSLayer::keyBackClicked() {
 }
 
 void TWSLayer::textChanged(CCTextInputNode*) {
-    // TODO
+    boobs::search = inp->getString();
+
+    this->unschedule(schedule_selector(TWSLayer::doThingIdrk));
+    this->scheduleOnce(schedule_selector(TWSLayer::doThingIdrk), 1.5f);
+}
+
+void TWSLayer::doThingIdrk(float) {
+    getTexturePacks(boobs::search);
 }
 
 TWSLayer::~TWSLayer()
 {
+    boobs::search = "";
     get = nullptr;
 }
+
+/*
+class TextureWorkshop : public cocos2d::CCLayer
+{
+
+
+texture workshop = running
+hackers = false
+deny ai thumbnail = true
+good mod have 1 mil download free = true
+geodoe 2.208 support = true
+*/
+

@@ -3,15 +3,24 @@
 
 using namespace geode::prelude;
 
-class TWSPack {
+class TWSPackCell;
+class TWSPackInfo;
+
+class TWSPack : public cocos2d::CCObject {
     public:
+        TWSPackCell* cell = nullptr;
+        TWSPackInfo* info = nullptr;
+
         std::string TPName, DownloadURL, IconURL, TPDescription, TPCreator, TPVersion, GDVersion;
         int ID, downloads;
         bool featured;
 
-        static TWSPack* create(std::string name, std::string downloadURL, std::string iconURL, std::string description, std::string creator, std::string version, std::string gdVersion, bool isFeatured, int downloads) {
+        Slider* downloadingIndicator = nullptr;
+
+        static TWSPack* create(int id, std::string name, std::string downloadURL, std::string iconURL, std::string description, std::string creator, std::string version, std::string gdVersion, bool isFeatured, int downloads) {
             auto tp = new TWSPack();
 
+            tp->ID = id;
             tp->TPName = name;
             tp->DownloadURL = downloadURL;
             tp->IconURL = iconURL;
@@ -22,9 +31,13 @@ class TWSPack {
             tp->featured = isFeatured;
             tp->downloads = downloads;
 
+
             return tp;
         };
 
         void downloadTP();
-        bool isDownloading();
+        bool isDownloading = false;
+        bool downloadSuccessful = false;
+
+        async::TaskHolder<geode::utils::web::WebResponse> m_downloadTPlistener;
 };

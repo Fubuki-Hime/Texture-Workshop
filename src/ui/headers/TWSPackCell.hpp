@@ -22,6 +22,15 @@ class TWSPackCell : public CCLayerColor {
         CCLabelBMFont* nameLabel;
         CCLabelBMFont* versionLabel;
         CCLabelBMFont* downloadCount;
+        CCLayerGradient* gradient;
+
+        CCMenuItemSpriteExtra* tpDownload;
+        CCMenuItemSpriteExtra* tpDelete;
+
+        bool lighterColor; // im so green ough
+
+        CCMenu* pagesMenu;
+        TextInput* inp;
 
         static TWSPackCell* create(TWSPack* tp, bool other) {
             TWSPackCell* pRet = new TWSPackCell();
@@ -36,10 +45,23 @@ class TWSPackCell : public CCLayerColor {
 
         ~TWSPackCell()
         {
+            if (texturePack) {
+                texturePack->cell = nullptr;
+                texturePack->downloadingIndicator = nullptr;
+            }
             texturePack = nullptr;
         }
+
+        void updateDownloadStata(); // stata :joy:
+        // id change it to "updateDownloadState" but its funnier to keep it as stata so its staying
     
     protected:
-
         bool init(TWSPack* tp, bool other);
+
+        void onInfo(CCObject*);
+        void onCreator(CCObject*);
+        void onDownload(CCObject*);
+        void onDelete(CCObject*);
+
+        void checkIfDownloading(); 
 };

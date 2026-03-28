@@ -23,9 +23,14 @@ protected:
     CCLabelBMFont* tpAmount;
     CCMenuItemSpriteExtra* refreshButton;
     CCMenuItemSpriteExtra* searchBtn;
+    CCMenuItemSpriteExtra* prevPage;
+    CCMenuItemSpriteExtra* nextPage;
+    CCMenuItemSpriteExtra* sortButton;
     CCMenu* buttonMenu;
     std::string inputText;
     async::TaskHolder<geode::utils::web::WebResponse> m_getTPslistener;
+    CCMenu* pagesMenu = nullptr;
+    TextInput* inp;
 
     LoadingCircleSprite* loading;
 
@@ -42,7 +47,7 @@ public:
     static cocos2d::CCScene* scene();
     static inline TWSLayer* get = nullptr;
     bool init();
-    TextInput* inp;
+    
 
     std::vector<TWSPack*> tps = {};
 
@@ -50,7 +55,7 @@ public:
     void searchTPs();
     void keyBackClicked();
 
-    void getTexturePacks();
+    void getTexturePacks(std::string searchQuery);
     void setupTPCells();
 
     void onDiscord(CCObject*);
@@ -59,8 +64,13 @@ public:
     void onRefresh(CCObject*);
     void onCredits(CCObject*);
     void onRefreshSearch(CCObject*);
+    void onSearch(CCObject*);
     void onFilter(CCObject*);
+
+    void onSort(CCObject*);
 
     void onNextPage(CCObject*);
     void onPrevPage(CCObject*);
+
+    void doThingIdrk(float);
 };

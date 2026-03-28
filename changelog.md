@@ -1,3 +1,15 @@
+# 2.0.0
+- Full Rewrite of the Mod
+ ## Additions
+- Pages! No more loading 100 tps at once!
+- Filters - Featured, Downloads, Recent
+- Reworked Searching
+ ## Changes
+- Changed logos to use LazySprite
+- More Stability 
+- Set Happy Textures as Required
+- SEASON 1 GUMMYBALL SUPPORT!!!!
+
 # 1.5.0
 - New API Endpoint again (https://textureworkshop.xyz/)
 - Edited the mod's description

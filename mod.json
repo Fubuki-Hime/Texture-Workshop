@@ -1,14 +1,14 @@
 {
-	"geode": "5.0.0",
+	"geode": "5.4.1",
 	"gd": {
 		"win": "2.2081",
 		"mac": "2.2081",
 		"ios": "2.2081",
 		"android": "2.2081"
 	},
-	"version": "v2.0.0",
+	"version": "v1.5.1",
 	"id": "uproxide.textures",
-	"name": "Texture Workshop",
+	"name": "Texture Workshop (READ ",
 	"developer": "Uproxide",
 	"description": "An index for texture packs :)",
 	"resources": {
@@ -23,14 +23,25 @@
 	},
 	"dependencies": {
 		"alphalaneous.happy_textures": {
-			"required": false,
-			"version": ">=2.0.22"
+			"required": true,
+			"version": ">=2.1.9"
+		},
+		"geode.texture-loader": {
+			"required": true,
+			"version": ">=1.9.0"
 		}
 	},
 	"settings": {
 		"cert-verification": {
 			"name": "Cert Verification",
 			"description": "Enable Cert Verification",
+			"type": "bool",
+			"default": true
+		},
+
+		"version-filter": {
+			"name": "Version Filter",
+			"description": "Filter TPs to only show TPs that support the current GD Version",
 			"type": "bool",
 			"default": true
 		}
