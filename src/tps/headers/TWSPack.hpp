@@ -16,6 +16,7 @@ class TWSPack : public cocos2d::CCObject {
         bool featured;
 
         Slider* downloadingIndicator = nullptr;
+        Slider* downloadingIndicatorInfoPage = nullptr;
 
         static TWSPack* create(int id, std::string name, std::string downloadURL, std::string iconURL, std::string description, std::string creator, std::string version, std::string gdVersion, bool isFeatured, int downloads) {
             auto tp = new TWSPack();

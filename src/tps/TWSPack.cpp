@@ -2,11 +2,21 @@ using namespace geode::prelude;
 
 #include "headers/TWSPack.hpp"
 #include "../ui/headers/TWSPackCell.hpp"
+#include "../ui/headers/TWSPackInfo.hpp"
 #include "../header/boobs.hpp"
 
 void TWSPack::downloadTP() {
     isDownloading = true;
     boobs::downloading.push_back(this);
+    if (cell) {
+        cell->tpDownload->setVisible(false);
+        downloadingIndicator->setVisible(true);
+    }
+
+    if (info) {
+        info->tpDownload->setVisible(false);
+        downloadingIndicatorInfoPage->setVisible(true);
+    }
     auto weak = geode::WeakRef(this); // weakref is fucking bullshit god GEODE IS GOING TO MAKE ME KILL MYSELF
 
     auto req = geode::utils::web::WebRequest();
@@ -16,6 +26,9 @@ void TWSPack::downloadTP() {
             downloadingIndicator->setValue(progress.downloadProgress().value_or(0.69420f) / 100.0f);
         }
 
+        if (downloadingIndicatorInfoPage && weak.valid()) {
+            downloadingIndicatorInfoPage->setValue(progress.downloadProgress().value_or(0.69420f) / 100.0f);
+        }
     });
 
     m_downloadTPlistener.spawn( 
@@ -33,6 +46,11 @@ void TWSPack::downloadTP() {
                     boobs::downloading.erase(std::remove(boobs::downloading.begin(), boobs::downloading.end(), this), boobs::downloading.end()); // texture workshop pack sacrificing itself to kill cheeseworks
                     std::string versionSaveThing = fmt::format("{}", TPName);
                     Mod::get()->setSavedValue<std::string>(versionSaveThing, TPVersion);
+                    if (info) {
+                        info->tpDelete->setVisible(true);
+                        downloadingIndicatorInfoPage->setVisible(false);
+                    }
+
                     if (cell) {
                         cell->updateDownloadStata();                    
                     } else {

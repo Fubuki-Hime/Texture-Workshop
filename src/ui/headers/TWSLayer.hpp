@@ -20,7 +20,8 @@ protected:
     
     CCScale9Sprite* bg;
     CCSprite* outline;
-    CCLabelBMFont* tpAmount;
+    CCLabelBMFont* pageCount;
+    
     CCMenuItemSpriteExtra* refreshButton;
     CCMenuItemSpriteExtra* searchBtn;
     CCMenuItemSpriteExtra* prevPage;
@@ -29,6 +30,7 @@ protected:
     CCMenu* buttonMenu;
     std::string inputText;
     async::TaskHolder<geode::utils::web::WebResponse> m_getTPslistener;
+    async::TaskHolder<geode::utils::web::WebResponse> m_getTPsCountlistener;
     CCMenu* pagesMenu = nullptr;
     TextInput* inp;
 

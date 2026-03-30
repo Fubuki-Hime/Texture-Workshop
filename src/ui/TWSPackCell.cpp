@@ -141,15 +141,27 @@ bool TWSPackCell::init(TWSPack* tp, bool other) {
     texturePack->downloadingIndicator->m_touchLogic->setVisible(false);
 
     if (std::filesystem::exists(fmt::format("{}/packs/{}.zip", Loader::get()->getInstalledMod("geode.texture-loader")->getConfigDir(), texturePack->TPName))) {
-        tpDelete->setVisible(true);
-        tpDownload->setVisible(false);
+        if (texturePack->TPVersion != Mod::get()->getSavedValue<std::string>(texturePack->TPName)) {
+            gradient = CCLayerGradient::create(ccc4(0, 0, 0, 100), ccc4(0, 60, 255, 99.96000000000001));
+            gradient->setContentSize(this->getContentSize());
+            gradient->setZOrder(-3);
+            gradient->setVector(ccp(90, 0));
+            this->addChild(gradient);
+            this->setOpacity(0);
 
-        gradient = CCLayerGradient::create(ccc4(0, 0, 0, 100), ccc4(0, 255, 0, 100));
-        gradient->setContentSize(this->getContentSize());
-        gradient->setZOrder(-3);
-        gradient->setVector(ccp(90, 0));
-        this->addChild(gradient);
-        this->setOpacity(0); 
+            tpDelete->setVisible(false);
+            tpDownload->setVisible(true);
+        } else {
+            tpDelete->setVisible(true);
+            tpDownload->setVisible(false);
+
+            gradient = CCLayerGradient::create(ccc4(0, 0, 0, 100), ccc4(0, 255, 0, 100));
+            gradient->setContentSize(this->getContentSize());
+            gradient->setZOrder(-3);
+            gradient->setVector(ccp(90, 0));
+            this->addChild(gradient);
+            this->setOpacity(0); 
+        }
     }
 
     updateDownloadStata();
@@ -190,6 +202,10 @@ void TWSPackCell::onDelete(CCObject*) {
 void TWSPackCell::updateDownloadStata() { // stata :joy:
     if (!texturePack) return;
 
+    if (texturePack->isDownloading) {
+        tpDownload->setVisible(false);
+    }
+
     if (texturePack->downloadingIndicator) {
         texturePack->downloadingIndicator->setVisible(texturePack->isDownloading);
     }
@@ -199,6 +215,10 @@ void TWSPackCell::updateDownloadStata() { // stata :joy:
     }
 
     if (texturePack->downloadSuccessful) {
+        if (gradient) {
+            this->removeChild(gradient);
+            gradient = nullptr;
+        }
         Notification::create("Download Complete!", CCSprite::createWithSpriteFrameName("GJ_completesIcon_001.png"));
         gradient = CCLayerGradient::create(ccc4(0, 0, 0, 100), ccc4(0, 255, 0, 100));
         gradient->setContentSize(this->getContentSize());
@@ -207,5 +227,6 @@ void TWSPackCell::updateDownloadStata() { // stata :joy:
         this->addChild(gradient);
         this->setOpacity(0); 
         tpDelete->setVisible(true);
+        tpDownload->setVisible(false);
     }
 }

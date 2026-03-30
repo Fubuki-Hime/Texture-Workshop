@@ -26,6 +26,20 @@ public:
     
     void updateDownloadStata(); // stata 
 
+    CCLabelBMFont* downloadCount;
+    CCLabelBMFont* versionLabel;
+    CCLabelBMFont* nameLabel;
+
+    CCMenuItemSpriteExtra* tpDownload;
+    CCMenuItemSpriteExtra* tpDelete;
+
+    TWSPack* texturePack;
+
+    ~TWSPackInfo();
+
 protected:
     bool init(TWSPack* tp);
+
+    void onDownload(CCObject* sender);
+    void onDelete(CCObject* sender);
 };

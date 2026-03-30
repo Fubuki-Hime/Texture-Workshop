@@ -190,7 +190,20 @@ bool TWSLayer::init() {
     buttonMenu->addChild(filesBtn);
     filesBtn->setPosition(ccp(director->getScreenLeft() + 25, director->getScreenBottom() + 25));
 
-    //getTexturePacks();
+    /*auto buttonSpr1 = CCSprite::createWithSpriteFrameName("TWS_Button.png"_spr);
+    auto featuredSpr = CCSprite::createWithSpriteFrameName("GJ_sStarsIcon_001.png");
+    buttonSpr1->addChild(featuredSpr);
+    featuredSpr->setPosition(ccp(buttonSpr1->getContentSize().width / 2, buttonSpr1->getContentSize().height / 2));
+    buttonSpr1->setScale(0.5);
+    auto featuredBtn = CCMenuItemSpriteExtra::create(
+        buttonSpr1,
+        this,
+        menu_selector(TWSLayer::onPacksFolder)
+    );
+    featuredBtn->setID("featured-button");
+    buttonMenu->addChild(featuredBtn);
+    featuredBtn->setPosition(ccp(director->getScreenLeft() + 25, director->getScreenBottom() + 25));*/
+    // big yahu save me bro
 
     scroll = ScrollLayer::create(ccp(313, 180));
     scroll->setAnchorPoint(ccp(0, 0));
@@ -256,7 +269,7 @@ bool TWSLayer::init() {
     inp->setDelegate(this);
     inp->setCommonFilter(CommonFilter::Any);
 
-    auto inpMenu = CCMenu::create();
+    /*auto inpMenu = CCMenu::create();
     inpMenu->setContentSize(inp->getContentSize());
     inp->addChild(inpMenu);
     
@@ -275,13 +288,18 @@ bool TWSLayer::init() {
     );
     inpMenu->setPosition(inp->getContentSize() / 2);
     filterBtn->setPositionX(filterBtn->getPositionX() + 5);
-    inpMenu->setTouchPriority(-129);
+    inpMenu->setTouchPriority(-129);*/
 
     return true;
 }
 
 void TWSLayer::getTexturePacks(std::string searchQuery) {
     if (scroll && scroll->m_contentLayer->getChildrenCount() > 0) scroll->m_contentLayer->removeAllChildren();
+
+    if (pageCount) {
+        pageCount->removeFromParentAndCleanup(true);
+        pageCount = nullptr;
+    }
 
     if (loading) loading->setVisible(true);
 
@@ -293,6 +311,7 @@ void TWSLayer::getTexturePacks(std::string searchQuery) {
     //if (prevPage && prevPage->isVisible()) prevPage->setVisible(false);
     
     auto req = geode::utils::web::WebRequest();
+    auto req2 = geode::utils::web::WebRequest();
 
     req.onProgress([](geode::utils::web::WebProgress const& progress) {
         //log::debug("Progress: ", progress.downloadProgress());
@@ -301,20 +320,25 @@ void TWSLayer::getTexturePacks(std::string searchQuery) {
     log::info("{}", boobs::page);
 
     std::string url = fmt::format("https://textureworkshop.xyz/api/v2/tws/getTPs?page={}", boobs::page);
+    std::string pageCountUrl = fmt::format("https://textureworkshop.xyz/api/v1/tws/getTPsCount?page={}", boobs::page);
 
     if (Mod::get()->getSettingValue<bool>("version-filter")) {
         std::string currentUrlStr = url;
+        std::string currentPageUrlStr = pageCountUrl;
         url = fmt::format("{}&version={}", currentUrlStr, Loader::get()->getGameVersion());
+        pageCountUrl = fmt::format("{}&version={}", currentPageUrlStr, Loader::get()->getGameVersion());
     }
 
     if (!searchQuery.empty()) {
         std::string currentUrlStr = url;
+        std::string currentPageUrlStr = pageCountUrl;
         size_t pos = 0;
         while ((pos = searchQuery.find(" ", pos)) != std::string::npos) {
             searchQuery.replace(pos, 1, "%20");
             pos += 3;
         }
         url = fmt::format("{}&search={}", currentUrlStr, searchQuery);
+        pageCountUrl = fmt::format("{}&version={}", currentPageUrlStr, Loader::get()->getGameVersion());
     }
 
     log::info("{}", Loader::get()->getGameVersion());
@@ -348,6 +372,29 @@ void TWSLayer::getTexturePacks(std::string searchQuery) {
                 loading->setVisible(false);
                 nextPage->setVisible(false);
                 prevPage->setVisible(false);
+            }
+        }
+    );
+
+    m_getTPsCountlistener.spawn( 
+        req2.get(pageCountUrl),
+        [this](geode::utils::web::WebResponse res) {
+            log::debug("Response: {}", res.code());
+            log::debug("Body: {}", res.string().unwrap());
+            if (!res.ok() || res.json().unwrap()["success"].asBool().unwrap() == false) {
+                log::error("Failed to get TP count: {}", res.string().unwrap());
+            } else {
+                if (res.json().unwrap()["count"].asInt().unwrap() == 0) {
+                    return;
+                }
+
+                auto director = CCDirector::sharedDirector();
+                std::string formattedText = fmt::format("Page {}/{} ({} Total)", boobs::page, res.json().unwrap()["pageCount"].asInt().unwrap(), res.json().unwrap()["count"].asInt().unwrap()).c_str();
+                pageCount = CCLabelBMFont::create(formattedText.c_str(), "goldFont.fnt");
+                this->addChild(pageCount);
+                pageCount->setScale(0.3);
+                pageCount->setAnchorPoint({1, 1});
+                pageCount->setPosition(ccp(director->getScreenRight() - 2, director->getScreenTop() - 2));
             }
         }
     );

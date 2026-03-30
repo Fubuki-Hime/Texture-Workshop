@@ -2,7 +2,6 @@
 - Full Rewrite of the Mod
  ## Additions
 - Pages! No more loading 100 tps at once!
-- Filters - Featured, Downloads, Recent
 - Reworked Searching
  ## Changes
 - Changed logos to use LazySprite
