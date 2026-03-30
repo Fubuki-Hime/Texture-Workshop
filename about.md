@@ -26,5 +26,6 @@ And that's about it! Wait until a **Texture Pack Mod** reviews your texture pack
 - Alphalaneous, M336, TheSillyDoggo, ShineUA (Their PRs to TWS)
 - Riley (Emotional support)
 - Brift (Concept creator, sprites, and logo)
+- Dremsk1y_ (Sprites)
 - Jaid (Helped with the about.md || One of the main TP Mods)
 - Cheeseworks (john)
