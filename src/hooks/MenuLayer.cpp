@@ -3,8 +3,8 @@
 using namespace geode::prelude;
 
 #include <Geode/modify/MenuLayer.hpp>
-#include "TextureWorkshopLayer.hpp"
-#include "boobs.hpp"
+#include "../ui/headers/TWSLayer.hpp"
+#include "../header/boobs.hpp"
 #include <Geode/utils/web.hpp>
 #include <Geode/loader/Mod.hpp>
 
@@ -30,7 +30,7 @@ class $modify(MyMenuLayer, MenuLayer) {
 	}
 
 	void onMyButton(CCObject*) {
-		auto workshopLayer = TextureWorkshopLayer::scene();
+		auto workshopLayer = TWSLayer::scene();
 		CCDirector::sharedDirector()->pushScene(CCTransitionFade::create(0.5f, workshopLayer));
 	}
 };

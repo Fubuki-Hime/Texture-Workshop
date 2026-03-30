@@ -1,0 +1,44 @@
+#pragma once
+#include <Geode/Geode.hpp>
+
+using namespace geode::prelude;
+
+class TWSPackCell;
+class TWSPackInfo;
+
+class TWSPack : public cocos2d::CCObject {
+    public:
+        TWSPackCell* cell = nullptr;
+        TWSPackInfo* info = nullptr;
+
+        std::string TPName, DownloadURL, IconURL, TPDescription, TPCreator, TPVersion, GDVersion;
+        int ID, downloads;
+        bool featured;
+
+        Slider* downloadingIndicator = nullptr;
+        Slider* downloadingIndicatorInfoPage = nullptr;
+
+        static TWSPack* create(int id, std::string name, std::string downloadURL, std::string iconURL, std::string description, std::string creator, std::string version, std::string gdVersion, bool isFeatured, int downloads) {
+            auto tp = new TWSPack();
+
+            tp->ID = id;
+            tp->TPName = name;
+            tp->DownloadURL = downloadURL;
+            tp->IconURL = iconURL;
+            tp->TPDescription = description;
+            tp->TPCreator = creator;
+            tp->TPVersion = version;
+            tp->GDVersion = gdVersion;
+            tp->featured = isFeatured;
+            tp->downloads = downloads;
+
+
+            return tp;
+        };
+
+        void downloadTP();
+        bool isDownloading = false;
+        bool downloadSuccessful = false;
+
+        async::TaskHolder<geode::utils::web::WebResponse> m_downloadTPlistener;
+};

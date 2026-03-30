@@ -1,11 +1,11 @@
 # Texture Workshop
 
-A **texture pack** index for [Texture Loader](mod:geode.texture-loader)!
+A **Texture Pack** index for [Texture Loader](mod:geode.texture-loader)!
 
 ## How it works
 Downloads the texture pack's zip directly to Texture Loader's packs folder! No need to unzip!
 
-## How do I submit a texture pack?
+## How do I submit a Texture Pack?
 Easy!
 Join the [Uproxide's Little Land](https://discord.gg/pUGPY9hQ22) Discord server,
 go to the **#texture-packs forum channel** and **read FAQ**, then create a post with the following information:
@@ -26,4 +26,6 @@ And that's about it! Wait until a **Texture Pack Mod** reviews your texture pack
 - Alphalaneous, M336, TheSillyDoggo, ShineUA (Their PRs to TWS)
 - Riley (Emotional support)
 - Brift (Concept creator, sprites, and logo)
+- Dremsk1y_ (Sprites)
 - Jaid (Helped with the about.md || One of the main TP Mods)
+- Cheeseworks (john)

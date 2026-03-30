@@ -8,9 +8,9 @@
 	},
 	"version": "v2.0.0",
 	"id": "uproxide.textures",
-	"name": "Texture Workshop",
+	"name": "Favorite Mods",
 	"developer": "Uproxide",
-	"description": "An index for Texture Packs :)",
+	"description": "An index for Favorite Mods :)",
 	"resources": {
 		"spritesheets": {
 			"TWSSheet": [
